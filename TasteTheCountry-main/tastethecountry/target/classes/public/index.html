@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Taste The Country</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__icon">
+        <img src="logo.PNG" alt="Taste The Country Logo" width="40" height="40">
+      </div>
+      <div class="brand__text">
+        <h1>Taste The Country</h1>
+        <p>Choose a country and get flag, facts and recipes.</p>
+      </div>
+    </div>
+
+    <form id="searchForm" class="search">
+      <input id="countryInput" type="text" placeholder="Type a country (e.g. Japan)" required />
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  <main class="layout">
+    <section class="hero glass">
+      <div class="hero__left">
+        <p class="eyebrow">Selected Country</p>
+        <h2 id="countryName" class="hero__title">—</h2>
+        <div class="chips">
+          <span class="chip"><span class="chip__k">Region</span> <b id="region">—</b></span>
+          <span class="chip"><span class="chip__k">Capital</span> <b id="capital">—</b></span>
+          <span class="chip"><span class="chip__k">Population</span> <b id="population">—</b></span>
+        </div>
+      </div>
+      <div class="hero__right">
+        <div class="flag">
+          <img id="flagImg" alt="Flag" />
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card glass">
+        <div class="card__head">
+          <h3>Recipe</h3>
+          <span class="hint" id="mealTag">Main Dish</span>
+        </div>
+        <div class="thumb">
+          <img id="mealImg" alt="Meal" />
+        </div>
+        <p class="line"><b id="mealName">—</b></p>
+        <p id="mealInstructions" class="muted" style="font-size: 12px; max-height: 100px; overflow-y: auto; margin-bottom: 10px; line-height: 1.4;">
+          Search for a country to see recipes...
+        </p>
+        <a id="mealLink" class="link" href="#" target="_blank" rel="noreferrer">Open source →</a>
+      </article>
+
+      <article class="card glass">
+        <div class="card__head">
+          <h3>Weather</h3>
+          <span class="hint">bonus</span>
+        </div>
+        <div class="weather">
+          <div class="weather__temp"><span id="temp">—</span><span class="deg">°C</span></div>
+          <div class="weather__desc" id="desc">—</div>
+        </div>
+        <p class="muted" style="font-size: 10px; margin-top: auto;">
+          (Weather is currently layout only)
+        </p>
+      </article>
+
+      <article class="card glass">
+        <div class="card__head">
+          <h3>Quick Info</h3>
+        </div>
+        <ul class="mini">
+          <li><span>Last Search</span><b id="lastSearch">—</b></li>
+          <li><span>Status</span><b id="status">Ready</b></li>
+        </ul>
+        <p id="error" class="error" hidden></p>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
