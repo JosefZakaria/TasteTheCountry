@@ -27,7 +27,31 @@
     // ----- State -----
     let currentController = null;
     let requestSeq = 0;
-  
+
+    // ----- Defaults -----
+    const BUTTON_TEXT = {
+        idle: "Search",
+        loading: "Loading…"
+      };
+
+    const DEFAULTS = {
+      mealInstructions: "Search for a country to see recipes...",
+      mealName: "—",
+      mealTag: "—",
+      weatherDesc: "—"
+    };
+
+    function setLink(el, url) {
+        if (!el) return;
+        const safeUrl = (url && typeof url === "string") ? url.trim() : "";
+        const disabled = !safeUrl || safeUrl === "#";
+
+        el.href = disabled ? "#" : safeUrl;
+        el.classList.toggle("is-disabled", disabled);
+        el.setAttribute("aria-disabled", String(disabled));
+        el.tabIndex = disabled ? -1 : 0;
+  }
+
     // ----- UI helpers -----
     function setStatus(text) {
       if (statusEl) statusEl.textContent = text;
@@ -37,7 +61,7 @@
       if (!errorEl) return;
       errorEl.textContent = message;
       errorEl.hidden = false;
-      setStatus("Fel");
+      setStatus("Error");
     }
   
     function clearError() {
@@ -49,9 +73,12 @@
     function setLoading(isLoading) {
       if (!form) return;
       const btn = form.querySelector("button[type='submit']");
-      if (btn) btn.disabled = isLoading;
+      if (btn) {
+       btn.disabled = isLoading;
+       btn.textContent = isLoading ? BUTTON_TEXT.loading : BUTTON_TEXT.idle;
+      }
       if (input) input.disabled = isLoading;
-      setStatus(isLoading ? "Laddar…" : "Redo");
+      setStatus(isLoading ? "Loading…" : "Ready");
     }
   
     function normalizeCountry(value) {
@@ -74,19 +101,19 @@
   
       if (flagImgEl) {
         flagImgEl.removeAttribute("src");
-        flagImgEl.alt = "Flagga";
+        flagImgEl.alt = "Flag";
       }
   
       // Meal
-      if (mealTagEl) mealTagEl.textContent = "—";
-      if (mealNameEl) mealNameEl.textContent = "—";
+      if (mealTagEl) mealTagEl.textContent = DEFAULTS.mealTag;
+      if (mealNameEl) mealNameEl.textContent = DEFAULTS.mealName;
       if (mealImgEl) mealImgEl.removeAttribute("src");
-      if (mealLinkEl) mealLinkEl.href = "#";
-      if (mealInstructionsEl) mealInstructionsEl.textContent = "—";
+      setLink(mealLinkEl, "#");
+      if (mealInstructionsEl) mealInstructionsEl.textContent = DEFAULTS.mealInstructions;
   
       // Weather
       if (tempEl) tempEl.textContent = "—";
-      if (descEl) descEl.textContent = "—";
+      if (descEl) descEl.textContent = DEFAULTS.weatherDesc;
     }
   
     // ----- Parsing helpers (country) -----
@@ -146,10 +173,10 @@
       if (flagImgEl) {
         if (flagUrl) {
           flagImgEl.src = flagUrl;
-          flagImgEl.alt = `Flagga: ${name}`;
+          flagImgEl.alt = `Flag: ${name}`;
         } else {
           flagImgEl.removeAttribute("src");
-          flagImgEl.alt = "Flagga saknas";
+          flagImgEl.alt = "Flag not available";
         }
       }
     }
@@ -176,27 +203,25 @@
     function renderMealMaybe(data) {
       const meal = pickMealObject(data);
       if (!meal) {
-        if (mealNameEl) mealNameEl.textContent = "Inget recept hittades";
+        if (mealTagEl) mealTagEl.textContent = DEFAULTS.mealTag;
+        if (mealNameEl) mealNameEl.textContent = "No recipe found";
         if (mealImgEl) mealImgEl.removeAttribute("src");
-        if (mealLinkEl) mealLinkEl.href = "#";
-        if (mealInstructionsEl) mealInstructionsEl.textContent = "Prova ett annat land (t.ex. Italy eller Turkey).";
+        setLink(mealLinkEl, "#");
+        if (mealInstructionsEl) mealInstructionsEl.textContent = "Try another country (e.g. Italy or Turkey).";
         return;
       }
   
       const mealName = meal?.strMeal ?? meal?.name ?? "—";
       const mealImg = meal?.strMealThumb ?? meal?.image ?? "";
-      const tag =
-        meal?.strArea ??
-        meal?.area ??
-        meal?.strCategory ??
-        meal?.category ??
-        "—";
+      const area = meal?.strArea ?? meal?.area ?? "";
+      const category = meal?.strCategory ?? meal?.category ?? "";
+      const tag = [area, category].filter(Boolean).join(" · ") || "—";
   
       // Länk: app.js 2 använder themealdb-id
       const mealLink =
         meal?.strSource ??
         meal?.source ??
-        (meal?.idMeal ? `https://www.themealdb.com/meal/${meal.idMeal}` : "#");
+        (meal?.idMeal ? `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}` : "#");
   
       const instructions = meal?.strInstructions ?? meal?.instructions ?? "";
   
@@ -206,14 +231,14 @@
         if (mealImg) mealImgEl.src = mealImg;
         else mealImgEl.removeAttribute("src");
       }
-      if (mealLinkEl) mealLinkEl.href = mealLink || "#";
+      setLink(mealLinkEl, mealLink || "#");
   
       if (mealInstructionsEl) {
         if (instructions) {
-          const trimmed = instructions.length > 220 ? instructions.substring(0, 220) + "..." : instructions;
-          mealInstructionsEl.textContent = trimmed;
+            const trimmed = instructions.length > 220 ? instructions.substring(0, 220) + "..." : instructions;
+            mealInstructionsEl.textContent = trimmed;
         } else {
-          mealInstructionsEl.textContent = "Inga instruktioner tillgängliga.";
+            mealInstructionsEl.textContent = "No instructions available.";
         }
       }
     }
@@ -272,8 +297,8 @@
         const res = await fetch(url, { signal: currentController.signal });
   
         if (!res.ok) {
-          if (res.status === 404) throw new Error("Landet hittades inte (endpoint eller landnamn).");
-          throw new Error(`Serverfel (${res.status}).`);
+            if (res.status === 404) throw new Error("Country not found (check the country name or the endpoint).");
+            throw new Error(`Server error (${res.status}).`);
         }
   
         const data = await res.json();
@@ -282,16 +307,16 @@
         if (seq !== requestSeq) return;
   
         const countryObj = pickCountryObject(data);
-        if (!countryObj) throw new Error("Kunde inte tolka land-data från servern.");
+        if (!countryObj) throw new Error("Could not parse country data from the server.");
   
         renderCountry(extractCountryFields(countryObj));
         renderMealMaybe(data);
         renderWeatherMaybe(data);
   
-        setStatus("Redo");
+        setStatus("Ready");
       } catch (err) {
         if (err?.name === "AbortError") return;
-        showError(err?.message || "Något gick fel.");
+        showError(err?.message || "Something went wrong.");
         resetUI();
       } finally {
         if (seq === requestSeq) setLoading(false);
@@ -299,8 +324,9 @@
     }
   
     // ----- Init -----
-    setStatus("Redo");
+    setStatus("Ready");
     clearError();
+    setLoading(false);
   
     form?.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -308,7 +334,7 @@
   
       const country = normalizeCountry(input?.value ?? "");
       if (!country) {
-        showError("Skriv in ett land innan du söker.");
+        showError("Type a country before searching.");
         input?.focus();
         return;
       }
