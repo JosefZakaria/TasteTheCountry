@@ -24,6 +24,11 @@
     color: var(--text);
     overflow-x: hidden;
   }
+
+  /* Hide broken image icons when src is missing */
+  img:not([src]) {
+    display: none;
+  }
   
   .bg{
     position: fixed;
@@ -247,14 +252,15 @@
   .weather{
     display:flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 4px;
     padding: 6px 0 6px;
   }
   .weather__temp{
-    font-size: 46px;
+    font-size: 70px;
     font-weight: 800;
     letter-spacing: -1px;
+    margin-top: 50px;
   }
   .deg{ font-size: 22px; opacity: .85; margin-left: 2px; }
   .weather__desc{ color: var(--muted); }

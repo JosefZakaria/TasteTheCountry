@@ -1,35 +1,47 @@
 :root{
-    --bg1:#0b1b3a;
-    --bg2:#0a2c5f;
-    --bg3:#0b3a7a;
-    --text: rgba(255,255,255,.92);
-    --muted: rgba(255,255,255,.70);
-    --border: rgba(255,255,255,.16);
-    --glass: rgba(255,255,255,.10);
-    --glass2: rgba(255,255,255,.14);
-    --shadow: 0 18px 45px rgba(0,0,0,.35);
-    --radius: 22px;
-  }
+  --bg1:#141a2b;   /* warm navy */
+  --bg2:#1f2a44;   /* warmer mid */
+  --bg3:#2a2f4f;   /* slight purple warmth */
+
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.70);
+  --border: rgba(255,255,255,.16);
+  --glass: rgba(255,255,255,.10);
+  --glass2: rgba(255,255,255,.14);
+  --shadow: 0 18px 45px rgba(0,0,0,.35);
+  --radius: 22px;
+}
+
   
   *{ box-sizing: border-box; }
-  html,body{ height:100%; }
+  html,body{
+     height:100%;
+   }
   body{
     margin:0;
+    min-height: 100vh;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--text);
     overflow-x: hidden;
+  }
+
+  /* Hide broken image icons when src is missing */
+  img:not([src]) {
+    display: none;
   }
   
   .bg{
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(900px 600px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
-      radial-gradient(700px 450px at 80% 0%, rgba(255,255,255,.12), transparent 55%),
+      radial-gradient(900px 600px at 18% 12%, rgba(255, 198, 120, .12), transparent 62%), /* warm glow */
+      radial-gradient(700px 450px at 82% 0%, rgba(255, 255, 255, .10), transparent 55%),
+      radial-gradient(600px 500px at 70% 85%, rgba(255, 140, 170, .08), transparent 60%), /* subtle warmth */
       linear-gradient(160deg, var(--bg1), var(--bg2), var(--bg3));
     filter: saturate(1.05);
     z-index: -1;
   }
+  
   
   .glass{
     background: linear-gradient(180deg, var(--glass2), var(--glass));
@@ -41,7 +53,7 @@
   }
   
   .topbar{
-    max-width: 1120px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 22px 16px 8px;
     display:flex;
@@ -57,14 +69,23 @@
     gap: 12px;
   }
   .brand__icon{
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     display:grid;
     place-items:center;
     border-radius: 14px;
     border: 1px solid var(--border);
     background: rgba(255,255,255,.08);
+    overflow: hidden;          
   }
+  
+  .brand__icon img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;           
+    display: block;
+  }
+  
   .brand h1{
     margin:0;
     font-size: 22px;
@@ -105,11 +126,16 @@
   .search button:hover{
     background: rgba(255,255,255,.20);
   }
+
+  .search button:focus-visible{
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255,255,255,.12);
+  }
   
   .layout{
-    max-width: 1120px;
+    max-width: 1280px;
     margin: 10px auto 28px;
-    padding: 0 16px;
+    padding: 24px 40px;
   }
   
   .hero{
@@ -174,6 +200,8 @@
   .card{
     padding: 14px;
     min-height: 270px;
+    display: flex;
+    flex-direction: column;
   }
   .card__head{
     display:flex;
@@ -224,14 +252,15 @@
   .weather{
     display:flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 4px;
     padding: 6px 0 6px;
   }
   .weather__temp{
-    font-size: 46px;
+    font-size: 70px;
     font-weight: 800;
     letter-spacing: -1px;
+    margin-top: 50px;
   }
   .deg{ font-size: 22px; opacity: .85; margin-left: 2px; }
   .weather__desc{ color: var(--muted); }
@@ -271,8 +300,39 @@
   }
   
   @media (max-width: 980px){
+    .layout { padding: 18px 16px; }
     .hero{ flex-direction: column; }
     .flag{ width: 100%; min-height: 200px; }
     .grid{ grid-template-columns: 1fr; }
   }
-  
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .meal-instructions {
+    font-size: 10px;
+    max-height: 180px;
+    overflow: auto;
+    padding-right: 6px;
+    line-height: 1.4;
+  }
+
+  .weather-note {
+    font-size: 10px;
+    margin-top: auto;
+  }
+
+  .link.is-disabled{
+    pointer-events: none;
+    opacity: .45;
+    text-decoration: none;
+  }
