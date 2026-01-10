@@ -95,7 +95,8 @@ public class CountryClient {
                 "Swedish Meatballs", 
                 "https://images.services.kitchenstories.io/hP04DDCA2zQ-oTBkgfZDNJ52CHw=/3840x0/filters:quality(85)/images.kitchenstories.io/wagtailOriginalImages/R2854-photo-final-1.jpg", // Exempelbild
                 "manual_1",
-                "1. Mix meat and spices. 2. Fry in butter. 3. Serve with lingonberries. Smaklig måltid! :)"
+                "1. Mix meat and spices. 2. Fry in butter. 3. Serve with lingonberries. Smaklig måltid! :)",
+                "https://kitchenstories.com/en/recipes/traditional-swedish-meatballs"
             ));
         } else {
             meals = fetchMeals(country.getDemonym(), country.getName());
@@ -200,11 +201,18 @@ public class CountryClient {
         
         if (detailsJson != null) {
             JSONObject m = new JSONObject(detailsJson).getJSONArray("meals").getJSONObject(0);
+            
+            String source = m.has("strSource") ? m.optString("strSource") : "";
+            if (source == null || source.isEmpty()) {
+                source = m.has("strYoutube") ? m.optString("strYoutube") : "";
+            }
+
             mealList.add(new Meal(
                 m.getString("strMeal"),
                 m.getString("strMealThumb"),
                 m.getString("idMeal"),
-                m.has("strInstructions") ? m.getString("strInstructions") : ""
+                m.has("strInstructions") ? m.getString("strInstructions") : "",
+                source
             ));
         }
         return mealList;

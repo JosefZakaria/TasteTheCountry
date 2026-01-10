@@ -239,11 +239,24 @@
       setLink(mealLinkEl, mealLink || "#");
   
       if (mealInstructionsEl) {
-        if (instructions) {
-            const trimmed = instructions.length > 220 ? instructions.substring(0, 220) + "..." : instructions;
-            mealInstructionsEl.textContent = trimmed;
-        } else {
+        if (!instructions) {
             mealInstructionsEl.textContent = "No instructions available.";
+        } else {
+            // Escape HTML for safety
+            let safeText = instructions
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // Format "Step X" and newlines
+            safeText = safeText.replace(/\r\n|\r|\n/g, "<br>");
+            // Make "step X" into a bold header on a new line
+            safeText = safeText.replace(/(step\s+\d+)/gi, "<br/><br/><strong style='color: white; text-transform: capitalize;'>$1</strong><br/>");
+            
+            // Clean up potentially excessive breaks
+            safeText = safeText.replace(/^(<br\/>)+/g, "");
+
+            mealInstructionsEl.innerHTML = safeText;
         }
       }
     }
