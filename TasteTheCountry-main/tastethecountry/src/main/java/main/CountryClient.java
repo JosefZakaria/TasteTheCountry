@@ -24,6 +24,9 @@ public class CountryClient {
     private final String weatherApiUrl;
     private final String weatherApiKey;
 
+
+//TESTING
+
     public CountryClient() {
         System.out.println("Initializing CountryClient...");
         System.out.println("Working Directory: " + System.getProperty("user.dir"));
