@@ -10,6 +10,7 @@
     const capitalEl = document.querySelector("#capital");
     const populationEl = document.querySelector("#population");
     const flagImgEl = document.querySelector("#flagImg");
+    const countryFactEl = document.querySelector("#countryFact");
   
     const mealTagEl = document.querySelector("#mealTag"); // kan vara null om inte finns i HTML
     const mealImgEl = document.querySelector("#mealImg");
@@ -98,6 +99,7 @@
       if (regionEl) regionEl.textContent = "—";
       if (capitalEl) capitalEl.textContent = "—";
       if (populationEl) populationEl.textContent = "—";
+      if (countryFactEl) countryFactEl.textContent = "—";
   
       if (flagImgEl) {
         flagImgEl.removeAttribute("src");
@@ -158,15 +160,18 @@
         countryObj?.flags?.svg ??
         countryObj?.flagUrl ??
         "";
+
+      const fact = countryObj?.fact ?? "—";
   
-      return { name, region, capital, population, flagUrl };
+      return { name, region, capital, population, flagUrl, fact };
     }
   
     function renderCountry(fields) {
-      const { name, region, capital, population, flagUrl } = fields;
+      const { name, region, capital, population, flagUrl, fact } = fields;
   
       if (countryNameEl) countryNameEl.textContent = name ?? "—";
       if (regionEl) regionEl.textContent = region ?? "—";
+      if (countryFactEl) countryFactEl.textContent = fact ?? "—";
       if (capitalEl) capitalEl.textContent = capital ?? "—";
       if (populationEl) populationEl.textContent = population ?? "—";
   
