@@ -22,6 +22,7 @@
     </div>
 
     <form id="searchForm" class="search">
+      <label class="sr-only" for="countryInput">Country</label>
       <input id="countryInput" type="text" placeholder="Type a country (e.g. Japan)" required />
       <button type="submit">Search</button>
     </form>
@@ -54,9 +55,15 @@
           <img id="mealImg" alt="Meal" />
         </div>
         <p class="line"><b id="mealName">—</b></p>
-        <p id="mealInstructions" class="muted" style="font-size: 12px; max-height: 100px; overflow-y: auto; margin-bottom: 10px; line-height: 1.4;">
+
+        <p class="muted">
+          Area/Category: <b id="mealTag">—</b>
+        </p>
+
+        <p id="mealInstructions" class="muted meal-instructions">
           Search for a country to see recipes...
         </p>
+
         <a id="mealLink" class="link" href="#" target="_blank" rel="noreferrer">Open source →</a>
       </article>
 
@@ -69,7 +76,7 @@
           <div class="weather__temp"><span id="temp">—</span><span class="deg">°C</span></div>
           <div class="weather__desc" id="desc">—</div>
         </div>
-        <p class="muted" style="font-size: 10px; margin-top: auto;">
+        <p class="muted weather-note">
           (Weather is currently layout only)
         </p>
       </article>

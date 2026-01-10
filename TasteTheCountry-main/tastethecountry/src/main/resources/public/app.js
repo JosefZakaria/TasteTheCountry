@@ -1,96 +1,346 @@
-const searchForm = document.getElementById('searchForm');
-const countryInput = document.getElementById('countryInput');
+(() => {
+    "use strict";
+  
+    // ----- Elements -----
+    const form = document.querySelector("#searchForm");
+    const input = document.querySelector("#countryInput");
+  
+    const countryNameEl = document.querySelector("#countryName");
+    const regionEl = document.querySelector("#region");
+    const capitalEl = document.querySelector("#capital");
+    const populationEl = document.querySelector("#population");
+    const flagImgEl = document.querySelector("#flagImg");
+  
+    const mealTagEl = document.querySelector("#mealTag"); // kan vara null om inte finns i HTML
+    const mealImgEl = document.querySelector("#mealImg");
+    const mealNameEl = document.querySelector("#mealName");
+    const mealLinkEl = document.querySelector("#mealLink");
+    const mealInstructionsEl = document.querySelector("#mealInstructions");
+  
+    const tempEl = document.querySelector("#temp");
+    const descEl = document.querySelector("#desc");
+  
+    const lastSearchEl = document.querySelector("#lastSearch");
+    const statusEl = document.querySelector("#status");
+    const errorEl = document.querySelector("#error");
+  
+    // ----- State -----
+    let currentController = null;
+    let requestSeq = 0;
 
-const countryNameEl = document.getElementById('countryName');
-const regionEl = document.getElementById('region');
-const capitalEl = document.getElementById('capital');
-const populationEl = document.getElementById('population');
-const flagImgEl = document.getElementById('flagImg');
+    // ----- Defaults -----
+    const BUTTON_TEXT = {
+        idle: "Search",
+        loading: "Loading…"
+      };
 
-// New elements for Food and Weather
-const mealNameEl = document.getElementById('mealName');
-const mealImgEl = document.getElementById('mealImg');
-const mealLinkEl = document.getElementById('mealLink');
-const tempEl = document.getElementById('temp'); // Make sure you have this ID in HTML
-const weatherDescEl = document.getElementById('desc'); // Make sure you have this ID in HTML
-const mealInstructionsEl = document.getElementById('mealInstructions');
+    const DEFAULTS = {
+      mealInstructions: "Search for a country to see recipes...",
+      mealName: "—",
+      mealTag: "—",
+      weatherDesc: "—"
+    };
 
-const factEl = document.getElementById('countryFact');
+    function setLink(el, url) {
+        if (!el) return;
+        const safeUrl = (url && typeof url === "string") ? url.trim() : "";
+        const disabled = !safeUrl || safeUrl === "#";
 
-searchForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    console.log("Search submitted...");
+        el.href = disabled ? "#" : safeUrl;
+        el.classList.toggle("is-disabled", disabled);
+        el.setAttribute("aria-disabled", String(disabled));
+        el.tabIndex = disabled ? -1 : 0;
+  }
 
-    const query = countryInput.value.trim();
-    if (!query) {
-        console.log("Empty query");
+    // ----- UI helpers -----
+    function setStatus(text) {
+      if (statusEl) statusEl.textContent = text;
+    }
+  
+    function showError(message) {
+      if (!errorEl) return;
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+      setStatus("Error");
+    }
+  
+    function clearError() {
+      if (!errorEl) return;
+      errorEl.textContent = "";
+      errorEl.hidden = true;
+    }
+  
+    function setLoading(isLoading) {
+      if (!form) return;
+      const btn = form.querySelector("button[type='submit']");
+      if (btn) {
+       btn.disabled = isLoading;
+       btn.textContent = isLoading ? BUTTON_TEXT.loading : BUTTON_TEXT.idle;
+      }
+      if (input) input.disabled = isLoading;
+      setStatus(isLoading ? "Loading…" : "Ready");
+    }
+  
+    function normalizeCountry(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+  
+    function formatNumber(n) {
+      try {
+        return new Intl.NumberFormat("sv-SE").format(n);
+      } catch {
+        return String(n);
+      }
+    }
+  
+    function resetUI() {
+      if (countryNameEl) countryNameEl.textContent = "—";
+      if (regionEl) regionEl.textContent = "—";
+      if (capitalEl) capitalEl.textContent = "—";
+      if (populationEl) populationEl.textContent = "—";
+  
+      if (flagImgEl) {
+        flagImgEl.removeAttribute("src");
+        flagImgEl.alt = "Flag";
+      }
+  
+      // Meal
+      if (mealTagEl) mealTagEl.textContent = DEFAULTS.mealTag;
+      if (mealNameEl) mealNameEl.textContent = DEFAULTS.mealName;
+      if (mealImgEl) mealImgEl.removeAttribute("src");
+      setLink(mealLinkEl, "#");
+      if (mealInstructionsEl) mealInstructionsEl.textContent = DEFAULTS.mealInstructions;
+  
+      // Weather
+      if (tempEl) tempEl.textContent = "—";
+      if (descEl) descEl.textContent = DEFAULTS.weatherDesc;
+    }
+  
+    // ----- Parsing helpers (country) -----
+    function pickCountryObject(data) {
+      // Ex: RestCountries direct array response
+      if (Array.isArray(data) && data.length > 0) return data[0];
+  
+      // Common mashup shapes
+      if (data && typeof data === "object") {
+        if (data.country) return data.country;
+        if (data.countryData) return data.countryData;
+        if (data.data) return data.data;
+        if (data.result) return data.result;
+      }
+  
+      return null;
+    }
+  
+    function extractCountryFields(countryObj) {
+      const name =
+        countryObj?.name?.common ??
+        countryObj?.name ??
+        countryObj?.countryName ??
+        "—";
+  
+      const region =
+        countryObj?.region ??
+        countryObj?.continents?.[0] ??
+        "—";
+  
+      const capital =
+        (Array.isArray(countryObj?.capital) ? countryObj.capital[0] : countryObj?.capital) ??
+        "—";
+  
+      const population =
+        typeof countryObj?.population === "number"
+          ? formatNumber(countryObj.population)
+          : (countryObj?.population ?? "—");
+  
+      const flagUrl =
+        countryObj?.flags?.png ??
+        countryObj?.flags?.svg ??
+        countryObj?.flagUrl ??
+        "";
+  
+      return { name, region, capital, population, flagUrl };
+    }
+  
+    function renderCountry(fields) {
+      const { name, region, capital, population, flagUrl } = fields;
+  
+      if (countryNameEl) countryNameEl.textContent = name ?? "—";
+      if (regionEl) regionEl.textContent = region ?? "—";
+      if (capitalEl) capitalEl.textContent = capital ?? "—";
+      if (populationEl) populationEl.textContent = population ?? "—";
+  
+      if (flagImgEl) {
+        if (flagUrl) {
+          flagImgEl.src = flagUrl;
+          flagImgEl.alt = `Flag: ${name}`;
+        } else {
+          flagImgEl.removeAttribute("src");
+          flagImgEl.alt = "Flag not available";
+        }
+      }
+    }
+  
+    // ----- Parsing helpers (meal) -----
+    function pickMealObject(data) {
+      // app.js 2 style: data.meals.meals[0]
+      const m1 = data?.meals?.meals?.[0];
+      if (m1) return m1;
+  
+      // app.js 1 "maybe" style: data.meal / data.recipe / etc
+      const m2 = data?.meal ?? data?.recipe ?? data?.mealData ?? data?.themealdb ?? null;
+      if (!m2) return null;
+  
+      // If it's already a list from some API wrapper
+      if (Array.isArray(m2) && m2.length > 0) return m2[0];
+  
+      // If it's a single object
+      if (m2 && typeof m2 === "object") return m2;
+  
+      return null;
+    }
+  
+    function renderMealMaybe(data) {
+      const meal = pickMealObject(data);
+      if (!meal) {
+        if (mealTagEl) mealTagEl.textContent = DEFAULTS.mealTag;
+        if (mealNameEl) mealNameEl.textContent = "No recipe found";
+        if (mealImgEl) mealImgEl.removeAttribute("src");
+        setLink(mealLinkEl, "#");
+        if (mealInstructionsEl) mealInstructionsEl.textContent = "Try another country (e.g. Italy or Turkey).";
         return;
-    }
-
-    try {
-        console.log(`Fetching: /api/country/${query}`);
-        const response = await fetch(`/api/country/${query}`);
-        console.log("Response status:", response.status);
-        
-        if (!response.ok) {
-            const msg = await response.text();
-            console.warn("Response not OK:", msg);
-            alert(`Country not found! (Status: ${response.status})`);
-            return;
+      }
+  
+      const mealName = meal?.strMeal ?? meal?.name ?? "—";
+      const mealImg = meal?.strMealThumb ?? meal?.image ?? "";
+      const area = meal?.strArea ?? meal?.area ?? "";
+      const category = meal?.strCategory ?? meal?.category ?? "";
+      const tag = [area, category].filter(Boolean).join(" · ") || "—";
+  
+      // Länk: app.js 2 använder themealdb-id
+      const mealLink =
+        meal?.strSource ??
+        meal?.source ??
+        (meal?.idMeal ? `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}` : "#");
+  
+      const instructions = meal?.strInstructions ?? meal?.instructions ?? "";
+  
+      if (mealTagEl) mealTagEl.textContent = tag;
+      if (mealNameEl) mealNameEl.textContent = mealName;
+      if (mealImgEl) {
+        if (mealImg) mealImgEl.src = mealImg;
+        else mealImgEl.removeAttribute("src");
+      }
+      setLink(mealLinkEl, mealLink || "#");
+  
+      if (mealInstructionsEl) {
+        if (instructions) {
+            const trimmed = instructions.length > 220 ? instructions.substring(0, 220) + "..." : instructions;
+            mealInstructionsEl.textContent = trimmed;
+        } else {
+            mealInstructionsEl.textContent = "No instructions available.";
         }
-
-        const data = await response.json();
-        console.log("Data received:", data); // Debugging
-        updateUI(data);
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        alert('Something went wrong! Check console for details.');
+      }
     }
-});
-
-
-
-function updateUI(data) {
-    // 1. LAND-DATA
-    const c = data.country;
-    if (c) {
-        countryNameEl.textContent = c.name.common;
-        regionEl.textContent = c.region;
-        capitalEl.textContent = c.capital ? c.capital[0] : 'N/A';
-        populationEl.textContent = c.population.toLocaleString();
-        flagImgEl.src = c.flags.svg;
-        
-        if (factEl) {
-            factEl.textContent = c.fact || "No facts available.";
-            factEl.style.fontSize = c.fact && c.fact.length > 60 ? "11px" : "13px";
+  
+    // ----- Parsing helpers (weather) -----
+    function pickWeatherObject(data) {
+      // app.js 2 style: data.weather.main
+      if (data?.weather?.main) return data.weather;
+  
+      // app.js 1 "maybe" style
+      if (data?.openWeather) return data.openWeather;
+      if (data?.weatherData) return data.weatherData;
+  
+      // Sometimes weather might already be the object
+      if (data?.weather && typeof data.weather === "object") return data.weather;
+  
+      return null;
+    }
+  
+    function renderWeatherMaybe(data) {
+      const weather = pickWeatherObject(data);
+      if (!weather) return;
+  
+      // OpenWeather typical:
+      // weather.main.temp, weather.weather[0].description
+      const temp =
+        typeof weather?.temp === "number"
+          ? weather.temp
+          : typeof weather?.main?.temp === "number"
+            ? weather.main.temp
+            : null;
+  
+      const desc =
+        weather?.description ??
+        weather?.weather?.[0]?.description ??
+        "—";
+  
+      if (tempEl) tempEl.textContent = temp !== null ? String(Math.round(temp)) : "—";
+      if (descEl) descEl.textContent = desc;
+    }
+  
+    // ----- Main action -----
+    async function fetchCountryAndRender(country) {
+      // Abort previous request
+      if (currentController) currentController.abort();
+      currentController = new AbortController();
+  
+      const seq = ++requestSeq;
+  
+      clearError();
+      resetUI();
+      setLoading(true);
+  
+      try {
+        const url = `/api/country/${encodeURIComponent(country)}`;
+        const res = await fetch(url, { signal: currentController.signal });
+  
+        if (!res.ok) {
+            if (res.status === 404) throw new Error("Country not found (check the country name or the endpoint).");
+            throw new Error(`Server error (${res.status}).`);
         }
+  
+        const data = await res.json();
+  
+        // If a newer request started, ignore this result
+        if (seq !== requestSeq) return;
+  
+        const countryObj = pickCountryObject(data);
+        if (!countryObj) throw new Error("Could not parse country data from the server.");
+  
+        renderCountry(extractCountryFields(countryObj));
+        renderMealMaybe(data);
+        renderWeatherMaybe(data);
+  
+        setStatus("Ready");
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+        showError(err?.message || "Something went wrong.");
+        resetUI();
+      } finally {
+        if (seq === requestSeq) setLoading(false);
+      } 
     }
-
-    // 2. RECEPT-DATA
-    // Vi kollar om data.meals finns OCH om listan inuti (meals) har innehåll
-    if (data.meals && data.meals.meals && data.meals.meals.length > 0) {
-        const meal = data.meals.meals[0]; // Vi tar första receptet
-
-        if(mealNameEl) mealNameEl.textContent = meal.strMeal;
-        if(mealImgEl) mealImgEl.src = meal.strMealThumb;
-        
-        if(mealInstructionsEl) {
-            // Om instruktioner finns, visa dem (max 200 tecken)
-            const text = meal.strInstructions || "No instructions available.";
-            mealInstructionsEl.textContent = text.substring(0, 200) + "...";
-        }
-        
-        if(mealLinkEl) mealLinkEl.href = `https://www.themealdb.com/meal/${meal.idMeal}`;
-    } else {
-        // Om inga recept hittades i JSON-svaret
-        if(mealNameEl) mealNameEl.textContent = "No recipes found";
-        if(mealImgEl) mealImgEl.src = ""; 
-        if(mealInstructionsEl) mealInstructionsEl.textContent = "Try another country like 'Italy' or 'Turkey'!";
-    }
-
-    if (data.weather && data.weather.main) {
-        const temp = Math.round(data.weather.main.temp * 10) / 10;
-        if(tempEl) tempEl.textContent = temp;
-        if(weatherDescEl) weatherDescEl.textContent = data.weather.weather[0].description;
-    }
-}
+  
+    // ----- Init -----
+    setStatus("Ready");
+    clearError();
+    setLoading(false);
+  
+    form?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      clearError();
+  
+      const country = normalizeCountry(input?.value ?? "");
+      if (!country) {
+        showError("Type a country before searching.");
+        input?.focus();
+        return;
+      }
+  
+      if (lastSearchEl) lastSearchEl.textContent = country;
+  
+      fetchCountryAndRender(country);
+    });
+  })();
