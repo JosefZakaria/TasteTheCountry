@@ -15,6 +15,8 @@ const tempEl = document.getElementById('temp'); // Make sure you have this ID in
 const weatherDescEl = document.getElementById('desc'); // Make sure you have this ID in HTML
 const mealInstructionsEl = document.getElementById('mealInstructions');
 
+const factEl = document.getElementById('countryFact');
+
 searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     console.log("Search submitted...");
@@ -57,6 +59,11 @@ function updateUI(data) {
         capitalEl.textContent = c.capital ? c.capital[0] : 'N/A';
         populationEl.textContent = c.population.toLocaleString();
         flagImgEl.src = c.flags.svg;
+        
+        if (factEl) {
+            factEl.textContent = c.fact || "No facts available.";
+            factEl.style.fontSize = c.fact && c.fact.length > 60 ? "11px" : "13px";
+        }
     }
 
     // 2. RECEPT-DATA
