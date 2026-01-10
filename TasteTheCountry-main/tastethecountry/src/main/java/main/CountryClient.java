@@ -142,7 +142,19 @@ public class CountryClient {
             demonym = data.getJSONObject("demonyms").getJSONObject("eng").getString("m");
         }
 
-        return new Country(commonName, region, capital, data.getLong("population"), flag, demonym);
+        String fact = "No specific fact found.";
+        JSONObject flags = data.getJSONObject("flags");
+        
+        if (flags.has("alt") && !flags.getString("alt").isEmpty()) {
+            fact = flags.getString("alt"); // Använder beskrivningen av flaggan från API:et
+        } else {
+            boolean landlocked = data.optBoolean("landlocked", false);
+            String carSide = data.getJSONObject("car").optString("side", "right");
+            fact = commonName + " is " + (landlocked ? "landlocked" : "not landlocked") + 
+                " and they drive on the " + carSide + " side.";
+        }
+
+        return new Country(commonName, region, capital, data.getLong("population"), flag, demonym, fact);
     }
 
     private Weather fetchWeather(String city) {
