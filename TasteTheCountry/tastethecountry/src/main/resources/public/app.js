@@ -345,7 +345,9 @@
     setStatus("Ready");
     clearError();
     setLoading(false);
-  
+
+    fetchCountryAndRender("Sweden");
+
     form?.addEventListener("submit", (e) => {
       e.preventDefault();
       clearError();
