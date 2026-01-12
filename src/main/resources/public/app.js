@@ -95,11 +95,11 @@
     }
   
     function resetUI() {
-      if (countryNameEl) countryNameEl.textContent = "—";
-      if (regionEl) regionEl.textContent = "—";
-      if (capitalEl) capitalEl.textContent = "—";
-      if (populationEl) populationEl.textContent = "—";
-      if (countryFactEl) countryFactEl.textContent = "—";
+      if (countryNameEl) countryNameEl.textContent = "";
+      if (regionEl) regionEl.textContent = "";
+      if (capitalEl) capitalEl.textContent = "";
+      if (populationEl) populationEl.textContent = "";
+      if (countryFactEl) countryFactEl.textContent = "";
   
       if (flagImgEl) {
         flagImgEl.removeAttribute("src");
@@ -107,7 +107,7 @@
       }
   
       // Meal
-      if (mealTagEl) mealTagEl.textContent = DEFAULTS.mealTag;
+      if (mealTagEl) mealTagEl.textContent = "";
       if (mealNameEl) mealNameEl.textContent = DEFAULTS.mealName;
       if (mealImgEl) mealImgEl.removeAttribute("src");
       setLink(mealLinkEl, "#");

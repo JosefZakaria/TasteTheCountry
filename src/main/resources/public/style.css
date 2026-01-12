@@ -34,10 +34,10 @@
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(900px 600px at 18% 12%, rgba(255, 198, 120, .12), transparent 62%), /* warm glow */
-      radial-gradient(700px 450px at 82% 0%, rgba(255, 255, 255, .10), transparent 55%),
-      radial-gradient(600px 500px at 70% 85%, rgba(255, 140, 170, .08), transparent 60%), /* subtle warmth */
-      linear-gradient(160deg, var(--bg1), var(--bg2), var(--bg3));
+      radial-gradient(900px 600px at 18% 12%, rgba(255, 255, 255, .15), transparent 62%),
+      radial-gradient(700px 450px at 82% 0%, rgba(255, 230, 200, .15), transparent 55%),
+      radial-gradient(600px 500px at 70% 85%, rgba(255, 200, 200, .1), transparent 60%),
+      linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); /* Sunset Orange to Red */
     filter: saturate(1.05);
     z-index: -1;
   }
@@ -69,21 +69,20 @@
     gap: 12px;
   }
   .brand__icon{
-    width: 52px;
-    height: 52px;
-    display:grid;
-    place-items:center;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: rgba(255,255,255,.08);
-    overflow: hidden;          
+    width: 75px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
   }
   
   .brand__icon img{
     width: 100%;
     height: 100%;
-    object-fit: cover;           
+    object-fit: contain;
     display: block;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
   }
   
   .brand h1{
@@ -153,10 +152,21 @@
     letter-spacing: .6px;
     text-transform: uppercase;
   }
+  .hero__left {
+    display: flex;
+    gap: 60px; /* Space between Country Info and Weather */
+  }
+
+  .info-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
   .hero__title{
     margin: 0 0 14px;
     font-size: 34px;
     letter-spacing: .2px;
+    min-height: 48px; /* Maintain height */
   }
   .chips{
     display:flex;
@@ -176,9 +186,8 @@
   }
   
   .flag{
-    height: 100%;
     min-height: 170px;
-    width: 260px;
+    width: 100%; /* Fill the hero__right container */
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,.16);
@@ -227,12 +236,14 @@
   }
   
   .thumb{
-    height: 250px;
+    width: 280px;
+    height: 280px;
+    flex-shrink: 0;
     border-radius: 16px;
     overflow:hidden;
     border: 1px solid rgba(255,255,255,.16);
     background: rgba(255,255,255,.06);
-    margin-bottom: 10px;
+    margin-bottom: 0; /* Removed margin-bottom */
   }
   .thumb img{
     width: 100%;
@@ -240,8 +251,33 @@
     object-fit: cover;
   }
   
-  .line{ margin: 8px 0 8px; }
+  /* Recipe Layout */
+  .recipe-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  
+  .recipe-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .recipe-info .line b {
+     font-size: 24px; /* Bigger Title */
+  }
+  
+  .meal-instructions {
+     font-size: 16px; /* Bigger instructions */
+     line-height: 1.6;
+  }
+  
+  .line{ margin: 0; }
   .link{
+    align-self: flex-start;
+    margin-top: 8px;
     color: rgba(255,255,255,.92);
     text-decoration: none;
     font-weight: 650;
@@ -249,21 +285,64 @@
   }
   .link:hover{ text-decoration: underline; }
   
-  .weather{
-    display:flex;
+  /* New Weather Layout */
+  .weather-group {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 0 6px;
   }
-  .weather__temp{
-    font-size: 70px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    margin-top: 50px;
+
+  .weather {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
   }
-  .deg{ font-size: 22px; opacity: .85; margin-left: 2px; }
-  .weather__desc{ color: var(--muted); }
+
+  .weather__temp {
+    font-size: 56px; 
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    min-height: 56px;
+  }
+
+  .weather__desc {
+    color: var(--muted);
+    font-size: 20px; 
+  }
+  
+  .deg{ font-size: 28px; opacity: .85; margin-left: 2px; }
+
+  /* Hero adjustments for right column */
+  .hero__right {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 100px; /* Increased gap to move info left */
+      width: auto;
+      flex-shrink: 0;
+  }
+  
+  .flag {
+    width: 220px !important; /* Force width in case of override */
+    min-height: 140px;
+    height: auto;
+    aspect-ratio: 1.6;
+  }
+  
+  .quick-info {
+      width: 300px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      font-size: 14px;
+      line-height: 1.5;
+  }
+
+  /* Main layout adjustment */
+  .recipe-section { margin-top: 24px; }
   
   .muted{
     color: var(--muted);
