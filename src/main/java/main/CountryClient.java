@@ -137,10 +137,10 @@ public class CountryClient {
         String region = data.getString("region");
         String flag = data.getJSONObject("flags").getString("svg");
 
-        String capital = "London";
+        String capital = "Unknown";
         if (data.has("capital")) capital = data.getJSONArray("capital").getString(0);
 
-        String demonym = "Canadian";
+        String demonym = "Unknown";
         if (data.has("demonyms") && data.getJSONObject("demonyms").has("eng")) {
             demonym = data.getJSONObject("demonyms").getJSONObject("eng").getString("m");
         }
