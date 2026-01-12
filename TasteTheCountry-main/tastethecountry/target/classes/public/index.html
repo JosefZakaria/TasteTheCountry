@@ -32,7 +32,13 @@
     <section class="hero glass">
       <div class="hero__left">
         <p class="eyebrow">Selected Country</p>
-        <h2 id="countryName" class="hero__title">—</h2>
+        <div class="title-row">
+            <h2 id="countryName" class="hero__title">—</h2>
+            <div class="weather">
+                <div class="weather__temp"><span id="temp">—</span><span class="deg">°C</span></div>
+                <div class="weather__desc" id="desc"></div>
+            </div>
+        </div>
         <div class="chips">
           <span class="chip"><span class="chip__k">Region</span> <b id="region">—</b></span>
           <span class="chip"><span class="chip__k">Capital</span> <b id="capital">—</b></span>
@@ -40,52 +46,42 @@
         </div>
       </div>
       <div class="hero__right">
+        <div class="quick-info">
+             <p class="eyebrow" style="margin-bottom:4px">Quick Info</p>
+             <p id="countryFact" class="fact-text">—</p>
+             <p id="error" class="error" hidden></p>
+        </div>
         <div class="flag">
           <img id="flagImg" alt="Flag" />
         </div>
       </div>
     </section>
 
-    <section class="grid">
+    <section class="recipe-section">
       <article class="card glass">
         <div class="card__head">
           <h3>Recipe</h3>
         </div>
-        <div class="thumb">
-          <img id="mealImg" alt="Meal" />
-        </div>
-        <p class="line"><b id="mealName"></b></p>
-
-        <p class="muted">
-          Recipe instructions: <b id="mealTag"></b>
-        </p>
-
-        <div id="mealInstructions" class="muted meal-instructions">
-          Search for a country to see recipes...
-        </div>
-
-        <a id="mealLink" class="link" href="#" target="_blank" rel="noreferrer">Open Recipe →</a>
-      </article>
-
-      <article class="card glass">
-        <div class="card__head">
-          <h3>Weather</h3>
+        
+        <div class="recipe-layout">
+          <div class="thumb">
+            <img id="mealImg" alt="Meal" />
+          </div>
           
+          <div class="recipe-info">
+            <p class="line"><b id="mealName"></b></p>
+  
+            <p class="muted">
+              Recipe instructions: <b id="mealTag"></b>
+            </p>
+  
+            <div id="mealInstructions" class="muted meal-instructions">
+              Search for a country to see recipes...
+            </div>
+  
+            <a id="mealLink" class="link" href="#" target="_blank" rel="noreferrer">Open Recipe →</a>
+          </div>
         </div>
-        <div class="weather">
-          <div class="weather__temp"><span id="temp">—</span><span class="deg">°C</span></div>
-          <div class="weather__desc" id="desc"></div>
-        </div>
-      </article>
-
-      <article class="card glass">
-        <div class="card__head">
-          <h3>Quick Info</h3>
-        </div>
-        <ul class="mini">
-          <li><b id="countryFact">—</b></li> 
-        </ul>
-        <p id="error" class="error" hidden></p>
       </article>
     </section>
   </main>
