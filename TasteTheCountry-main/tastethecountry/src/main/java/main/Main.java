@@ -21,11 +21,11 @@ public class Main {
                 if (response != null) {
                     ctx.contentType("application/json").result(response.toString());
                 } else {
-                    ctx.status(404).json(new JSONObject().put("error", "Country not found"));
+                    ctx.status(404).contentType("application/json").result(new JSONObject().put("error", "Country not found").toString());
                 }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    ctx.status(500).json(new JSONObject().put("error", "Internal Server Error: " + e.getMessage()));
+                    ctx.status(500).contentType("application/json").result(new JSONObject().put("error", "Internal Server Error: " + e.getMessage()).toString());
                 }
             });
 

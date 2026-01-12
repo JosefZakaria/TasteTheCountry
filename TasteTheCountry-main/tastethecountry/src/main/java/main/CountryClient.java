@@ -25,8 +25,6 @@ public class CountryClient {
     private final String weatherApiKey;
 
 
-//TESTING
-
     public CountryClient() {
         System.out.println("Initializing CountryClient...");
         System.out.println("Working Directory: " + System.getProperty("user.dir"));
@@ -129,8 +127,12 @@ public class CountryClient {
         String json = makeRequest(countryApiUrl + "/name/" + encodedName);
         if (json == null) return null;
 
-        JSONObject data = new JSONArray(json).getJSONObject(0);
+        JSONArray jsonArray = new JSONArray(json);
+        if (jsonArray.isEmpty()) {
+            return null;
+        }
 
+        JSONObject data = jsonArray.getJSONObject(0);
         String commonName = data.getJSONObject("name").getString("common");
         String region = data.getString("region");
         String flag = data.getJSONObject("flags").getString("svg");
