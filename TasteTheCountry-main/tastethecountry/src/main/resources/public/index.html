@@ -31,18 +31,23 @@
   <main class="layout">
     <section class="hero glass">
       <div class="hero__left">
-        <p class="eyebrow">Selected Country</p>
-        <div class="title-row">
-            <h2 id="countryName" class="hero__title">—</h2>
-            <div class="weather">
-                <div class="weather__temp"><span id="temp">—</span><span class="deg">°C</span></div>
-                <div class="weather__desc" id="desc"></div>
+        <div class="info-group">
+            <p class="eyebrow">Selected Country</p>
+            <h2 id="countryName" class="hero__title"></h2>
+            
+            <div class="chips">
+              <span class="chip"><span class="chip__k">Region</span> <b id="region"></b></span>
+              <span class="chip"><span class="chip__k">Capital</span> <b id="capital"></b></span>
+              <span class="chip"><span class="chip__k">Population</span> <b id="population"></b></span>
             </div>
         </div>
-        <div class="chips">
-          <span class="chip"><span class="chip__k">Region</span> <b id="region">—</b></span>
-          <span class="chip"><span class="chip__k">Capital</span> <b id="capital">—</b></span>
-          <span class="chip"><span class="chip__k">Population</span> <b id="population">—</b></span>
+
+        <div class="weather-group">
+            <p class="eyebrow">Weather</p>
+            <div class="weather">
+                <div class="weather__temp"><span id="temp"></span><span class="deg">°C</span></div>
+                <div class="weather__desc" id="desc"></div>
+            </div>
         </div>
       </div>
       <div class="hero__right">
